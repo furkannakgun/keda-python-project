@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-flask-app
+spec:
+  selector:
+    matchLabels:
+      app: my-flask-app
+  template:
+    metadata:
+      labels:
+        app: my-flask-app
+    spec:
+      containers:
+      - name: my-flask-app
+        image: furkanakgun/keda-flask-app:v2
+        ports:
+        - containerPort: 5000
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: my-flask-app-scaledobject
+spec:
+  scaleTargetRef:
+    name: my-flask-app
+  minReplicaCount: 1  
+  maxReplicaCount: 100  
+  triggers:
+  - type: cpu
+    metadata:
+      type: Utilization
+      value: "50"
